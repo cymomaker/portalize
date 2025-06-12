@@ -1,79 +1,100 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-
-interface User {
-    id: number
-    email: string
-    status: boolean
-    created_at: string
-}
+import { Logo } from '@/components/logo'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function HomePage() {
-    const [users, setUsers] = useState<User[]>([])
-    const [email, setEmail] = useState('')
+    const router = useRouter()
+    const [identifier, setIdentifier] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
 
-    useEffect(() => {
-        fetchUsers()
-    }, [])
-
-    async function fetchUsers() {
-        const res = await fetch('/api/users')
-        const data = await res.json()
-        setUsers(data)
-    }
-
-    async function handleAddUser() {
+    const handleLogin = async () => {
         setLoading(true)
-        const res = await fetch('/api/users', {
+        
+        const res = await fetch('/api/auth/login', {
             method: 'POST',
-            body: JSON.stringify({ email, password }),
             headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ identifier, password }),
         })
+
         if (res.ok) {
-            setEmail('')
-            setPassword('')
-            fetchUsers()
+            toast.success('登录成功', {
+                description: '正在跳转到仪表盘...',
+            })
+            router.push('/dashboard')
         } else {
-            alert('添加失败（可能是重复邮箱）')
+            const data = await res.json()
+            toast.error(data.message || '登录失败，请稍后重试')
         }
+        
         setLoading(false)
     }
 
     return (
-        <main className="max-w-xl mx-auto py-12 px-4 space-y-6">
-            <h1 className="text-2xl font-bold text-center">用户管理</h1>
+        <div
+            className="relative flex min-h-screen flex-col bg-cover bg-center"
+            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1598312783990-92697964ec08')" }}
+        >
+            {/* 遮罩层 */}
+            <div className="absolute inset-0 bg-black/50" />
 
-            <div className="flex flex-col gap-4">
-                <Input placeholder="邮箱" value={email} onChange={(e) => setEmail(e.target.value)} />
-                <Input
-                    type="password"
-                    placeholder="密码"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                <Button onClick={handleAddUser} disabled={loading}>
-                    {loading ? '添加中...' : '添加用户'}
-                </Button>
+            {/* Logo */}
+            <div className="absolute top-8 left-8 z-10">
+                <Logo />
             </div>
 
-            <div className="mt-8">
-                <h2 className="text-lg font-semibold mb-2">用户列表：</h2>
-                <ul className="space-y-2">
-                    {users.map((user) => (
-                        <li key={user.id} className="border p-2 rounded text-sm">
-                            <div>📧 {user.email}</div>
-                            <div className="text-gray-500">
-                                状态：{user.status ? '启用' : '禁用'} / 注册于：{new Date(user.created_at).toLocaleString()}
-                            </div>
-                        </li>
-                    ))}
-                </ul>
+            {/* 登录表单容器 */}
+            <div className="flex flex-1 items-center justify-end p-8">
+                <div className="relative z-10 w-full max-w-md mr-16">
+                    <Card className="bg-background/80 backdrop-blur-sm">
+                        <CardHeader className="text-center">
+                            <CardTitle className="text-3xl font-bold">点达</CardTitle>
+                            <CardDescription className="pt-2">一点直达，全域协同。</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault()
+                                    handleLogin()
+                                }}
+                            >
+                                <div className="space-y-4">
+                                    <Input
+                                        type="text"
+                                        placeholder="用户名或邮箱"
+                                        value={identifier}
+                                        onChange={(e) => setIdentifier(e.target.value)}
+                                        required
+                                    />
+                                    <Input
+                                        type="password"
+                                        placeholder="密码"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                    />
+                                    <Button type="submit" className="w-full" disabled={loading}>
+                                        {loading ? '登录中...' : '登录'}
+                                    </Button>
+                                </div>
+                            </form>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
-        </main>
+
+            {/* 作者信息 */}
+            <footer className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
+                <p className="text-xs text-white/50">
+                    Made with vision & code by DW · © 2025
+                </p>
+            </footer>
+        </div>
     )
 }
