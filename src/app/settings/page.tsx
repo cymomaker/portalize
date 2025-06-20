@@ -1,42 +1,26 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
+import { UpdateProfileForm } from '@/components/settings/update-profile-form'
+import { getCurrentUserOnServer } from '@/lib/server-auth'
+import { redirect } from 'next/navigation'
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+    const user = await getCurrentUserOnServer()
+
+    // 这是一个受保护的路由，如果无法在服务器端获取用户信息，
+    // 则直接重定向到首页，而不是尝试渲染页面。
+    if (!user) {
+        redirect('/')
+    }
+
     return (
-        <div className="flex-1 space-y-4 p-8 pt-6">
-            <div className="flex items-center justify-between space-y-2">
-                <h2 className="text-3xl font-bold tracking-tight">用户设置</h2>
+        <div className="space-y-6 p-8">
+            <div>
+                <h1 className="text-2xl font-bold tracking-tight">个人信息</h1>
+                <p className="mt-1 text-sm text-muted-foreground">
+                    管理您的账户信息，请注意，修改用户名和邮箱可能需要重新登录。
+                </p>
             </div>
-            <div className="grid gap-4">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>个人信息</CardTitle>
-                        <CardDescription>
-                            更新您的个人信息和账户设置
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="username">用户名</Label>
-                            <Input id="username" defaultValue="admin" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="email">邮箱</Label>
-                            <Input id="email" type="email" defaultValue="admin@portalize.app" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="password">新密码</Label>
-                            <Input id="password" type="password" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="confirm-password">确认密码</Label>
-                            <Input id="confirm-password" type="password" />
-                        </div>
-                        <Button>保存更改</Button>
-                    </CardContent>
-                </Card>
+            <div className="w-full max-w-2xl">
+                <UpdateProfileForm user={user} />
             </div>
         </div>
     )

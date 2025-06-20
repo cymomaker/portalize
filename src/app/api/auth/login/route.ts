@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 import prisma from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import { cookies } from 'next/headers'
 
 export async function POST(req: NextRequest) {
     try {
@@ -38,17 +38,25 @@ export async function POST(req: NextRequest) {
             { expiresIn: '7d' }
         )
 
-        const response = NextResponse.json({ message: '登录成功' })
+        const response = NextResponse.json({ 
+            success: true,
+            message: '登录成功',
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email
+            }
+        })
+
         response.cookies.set('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'lax',
             maxAge: 60 * 60 * 24 * 7, // 7 days
             path: '/',
         })
 
         return response
-
     } catch (error) {
         console.error('登录 API 错误:', error)
         return NextResponse.json({ message: '服务器内部错误' }, { status: 500 })

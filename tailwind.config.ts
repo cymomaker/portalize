@@ -4,9 +4,9 @@ import animate from 'tailwindcss-animate'
 const config: Config = {
     darkMode: ['class'],
     content: [
-        './app/**/*.{js,ts,jsx,tsx}',
-        './components/**/*.{js,ts,jsx,tsx}',
-        './src/**/*.{js,ts,jsx,tsx}',
+        './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+        './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+        './src/app/**/*.{js,ts,jsx,tsx,mdx}',
     ],
     theme: {
         extend: {
@@ -56,6 +56,22 @@ const config: Config = {
                     4: 'hsl(var(--chart-4))',
                     5: 'hsl(var(--chart-5))',
                 },
+            },
+            fontFamily: {
+                sans: [
+                    '-apple-system',
+                    'BlinkMacSystemFont',
+                    'Segoe UI',
+                    'Roboto',
+                    'Helvetica Neue',
+                    'Arial',
+                    'Noto Sans',
+                    'sans-serif',
+                    'Apple Color Emoji',
+                    'Segoe UI Emoji',
+                    'Segoe UI Symbol',
+                    'Noto Color Emoji',
+                ],
             },
         },
     },
